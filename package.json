@@ -13,6 +13,13 @@
     "parcel": "^2.7.0"
   },
   "dependencies": {
-    "d3": "^7.6.1"
-  }
+    "d3": "^7.9.0"
+  },
+  "name": "mtg_lab",
+  "version": "1.0.0",
+  "description": "Это заготовка редактора колод для игры MTG.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

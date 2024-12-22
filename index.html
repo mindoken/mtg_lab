@@ -1,46 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>MTG Lab</title>
-    <meta charset="UTF-8" />
-
-    <script src="src/index.js" type="module"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTG Deck Builder</title>
     <link href="styles/app.css" rel="stylesheet">
+    <script src="src/index.js" type="module"></script>
 </head>
-
 <body>
 <header>
     <h1>MTG Deck Builder</h1>
 </header>
-    <main class="main">
-        <div id="menu">
-            <h2>Cards</h2>
-            <div id="listContainer"></div>
+<main class="main">
+    <div id="menu">
+        <h2>Cards</h2>
+        <input type="text" id="searchInput" placeholder="Search for a card..." />
+        <div id="listContainer"></div>
+    </div>
+
+    <div class="content">
+        <div id="cardsContainer">
+            <h1 style="display: flex; justify-content: center;">
+                REPLACE WITH ACTUAL CONTENT
+            </h1>
         </div>
-
-        <div class="content">
-            <div id="cardsContainer">
-                <h1 style="display: flex; justify-content: center;">
-                    REPLACE WITH ACTUAL CONTENT
-                </h1>
-            </div>
+    </div>
+    <div id="stats">
+        <h2>Stats</h2>
+        <div class="widgets">
+            <div id="manaStats"></div>
+            <div id="colorStats"></div>
         </div>
-        <div id="stats">
-            <h2>Stats</h2>
-            <div class="widgets">
-                <div id = "manaStats">
-
-                </div>
-                <div id = "colorStats">
-
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-<footer>
-
-</footer>
+    </div>
+</main>
+<footer></footer>
 </body>
 </html>

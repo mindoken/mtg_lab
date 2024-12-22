@@ -1,25 +1,14 @@
 import * as d3 from "d3";
+
 class ManaCostStats {
-    constructor() {
-    }
-    buildStats(element){
-        const data = [
-            { cost: 0, count: 2 },
-            { cost: 1, count: 8 },
-            { cost: 2, count: 12 },
-            { cost: 3, count: 15 },
-            { cost: 4, count: 10 },
-            { cost: 5, count: 6 },
-            { cost: 6, count: 4 },
-            { cost: '7+', count: 3 }
-        ];
+    buildStats(element, deck) {
+        const data = this.calculateManaCostDistribution(deck);
+        // Clear previous stats
+        d3.select(element).selectAll("*").remove();
 
         const margin = { top: 30, right: 30, bottom: 70, left: 60 };
         const width = 460 - margin.left - margin.right;
         const height = 400 - margin.top - margin.bottom;
-
-
-
 
         const svg = d3.select(element)
             .append("svg")
@@ -76,5 +65,28 @@ class ManaCostStats {
             .attr("y", height + margin.bottom - 10)
             .text("Mana Cost");
     }
+
+    calculateManaCostDistribution(deck) {
+        const manaCostCount = Array(8).fill(0); // For costs 0 to 7+
+
+        for (const cardName in deck) {
+            const card = allCards.find(c => c.name === cardName);
+            if (card) {
+                const count = deck[cardName];
+                const manaCost = card.manaCost || 0; // Default to 0 if no cost
+                if (manaCost >= 7) {
+                    manaCostCount[7] += count; // Count as 7+ for costs greater than 6
+                } else {
+                    manaCostCount[manaCost] += count;
+                }
+            }
+        }
+
+        return manaCostCount.map((count, index) => ({
+            cost: index === 7 ? '7+' : index,
+            count: count
+        }));
+    }
 }
-export {ManaCostStats};
+
+export { ManaCostStats };

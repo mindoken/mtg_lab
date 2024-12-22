@@ -1,18 +1,10 @@
 import * as d3 from "d3";
+
 class ColorStats {
-
-    constructor() {
-    }
-
-    buildStats(element){
-        const data = [
-            { color: 'White', count: 15 },
-            { color: 'Blue', count: 12 },
-            { color: 'Black', count: 8 },
-            { color: 'Red', count: 10 },
-            { color: 'Green', count: 18 },
-            { color: 'Colorless', count: 7 }
-        ];
+    buildStats(element, deck) {
+        const data = this.calculateColorDistribution(deck);
+        // Clear previous stats
+        d3.select(element).selectAll("*").remove();
 
         const width = 200;
         const height = 200;
@@ -29,10 +21,12 @@ class ColorStats {
         const arc = d3.arc()
             .innerRadius(0)
             .outerRadius(radius);
-        const label = document.createElement('label')
+
+        const label = document.createElement('label');
         label.textContent = "Deck Mana Color Distribution";
         label.classList.add("colorLabel");
-        element.appendChild(label)
+        element.appendChild(label);
+
         const svg = d3.select(element)
             .append("svg")
             .attr("width", width)
@@ -49,8 +43,34 @@ class ColorStats {
         arcs.append("path")
             .attr("d", arc)
             .attr("fill", d => color(d.data.color));
-
     }
 
+    calculateColorDistribution(deck) {
+        const colorCount = {
+            'White': 0,
+            'Blue': 0,
+            'Black': 0,
+            'Red': 0,
+            'Green': 0,
+            'Colorless': 0
+        };
+
+        for (const cardName in deck) {
+            const card = allCards.find(c => c.name === cardName);
+            if (card) {
+                const count = deck[cardName];
+                if (card.colors) {
+                    card.colors.forEach(color => {
+                        colorCount[color] += count;
+                    });
+                } else {
+                    colorCount['Colorless'] += count;
+                }
+            }
+        }
+
+        return Object.entries(colorCount).map(([color, count]) => ({ color, count }));
+    }
 }
+
 export { ColorStats };
