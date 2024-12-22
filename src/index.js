@@ -43,14 +43,35 @@ function renderCardList(cards) {
 function displayCardDetails(card) {
     const cardsContainer = document.getElementById('cardsContainer');
     cardsContainer.innerHTML = `
-        <h1>${card.name}</h1>
-        <img src="${card.imageUrl}" alt="${card.name}" />
-        <p>${card.text}</p>
-        <button id="addCardButton">Add to Deck</button>
+        <div class="card-details">
+            <h1>${card.name}</h1>
+            <img src="${card.imageUrl}" alt="${card.name}" />
+            <p><strong>Type:</strong> ${card.type}</p>
+            <p><strong>Text:</strong> ${card.text}</p>
+            <p><strong>Mana Cost:</strong> ${card.manaCost || 'None'}</p>
+            <p><strong>Colors:</strong> ${card.colors ? card.colors.join(', ') : 'Colorless'}</p>
+            <button id="addCardButton">Add to Deck</button>
+            <button id="removeCardButton" style="display: none;">Remove from Deck</button>
+        </div>
     `;
 
-    document.getElementById('addCardButton').addEventListener('click', () => addCardToDeck(card));
+    // Show or hide the remove button based on whether the card is already in the deck
+    const addCardButton = document.getElementById('addCardButton');
+    const removeCardButton = document.getElementById('removeCardButton');
+
+    if (deck[card.name]) {
+        addCardButton.style.display = 'none';
+        removeCardButton.style.display = 'inline-block';
+    } else {
+        addCardButton.style.display = 'inline-block';
+        removeCardButton.style.display = 'none';
+    }
+
+    // Add event listeners for the buttons
+    addCardButton.addEventListener('click', () => addCardToDeck(card));
+    removeCardButton.addEventListener('click', () => removeCardFromDeck(card));
 }
+
 
 function addCardToDeck(card) {
     const cardName = card.name;
