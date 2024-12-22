@@ -4,20 +4,20 @@ import { ManaCostStats } from "./widgets/manaCostStats";
 
 document.addEventListener("DOMContentLoaded", setup);
 
-let allCards = []; // Store all cards for searching
-let deck = {}; // Store deck as an object with card names as keys and counts as values
+let allCards = []; // Хранит все карты для поиска
+let deck = {}; // Хранит колоду в виде объекта с именами карт в качестве ключей и их количеством в качестве значений
+const manaCostStats = new ManaCostStats(); // Создаем экземпляр ManaCostStats
 
 function setup() {
     const mtg = new Mtg();
     mtg.loadCards()
         .then((cards) => {
-            allCards = cards; // Store cards for future reference
+            allCards = cards; // Сохраняем карты для будущего использования
             renderCardList(cards);
-            new ColorStats().buildStats(document.getElementById("colorStats"), deck);
-            new ManaCostStats().buildStats(document.getElementById("manaStats"), deck);
+            updateStats();
         });
 
-    // Search functionality
+    // Функциональность поиска
     document.getElementById('searchInput').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase();
         const filteredCards = allCards.filter(card => card.name.toLowerCase().includes(searchTerm));
@@ -32,11 +32,11 @@ function renderCardList(cards) {
     cards.forEach(card => {
         const listItem = document.createElement('li');
         listItem.innerHTML = card.name;
-        listItem.addEventListener('click', () => displayCardDetails(card)); // Display card details on click
+        listItem.addEventListener('click', () => displayCardDetails(card)); // Отображение деталей карты по клику
         list.appendChild(listItem);
     });
 
-    menu.innerHTML = ''; // Clear previous list
+    menu.innerHTML = ''; // Очищаем предыдущий список
     menu.appendChild(list);
 }
 
@@ -46,19 +46,20 @@ function displayCardDetails(card) {
         <div class="card-details">
             <h1>${card.name}</h1>
             <img src="${card.imageUrl}" alt="${card.name}" />
-            <p><strong>Type:</strong> ${card.type}</p>
-            <p><strong>Text:</strong> ${card.text}</p>
-            <p><strong>Mana Cost:</strong> ${card.manaCost || 'None'}</p>
-            <p><strong>Colors:</strong> ${card.colors ? card.colors.join(', ') : 'Colorless'}</p>
-            <button id="addCardButton">Add to Deck</button>
-            <button id="removeCardButton" style="display: none;">Remove from Deck</button>
+            <p><strong>Тип:</strong> ${card.type}</p>
+            <p><strong>Описание:</strong> ${card.text}</p>
+            <p><strong>Мана стоимость:</strong> ${card.manaCost || 'Нет'}</p>
+            <p><strong>Цвета:</strong> ${card.colors ? card.colors.join(', ') : 'Бесцветный'}</p>
+            <button id="addCardButton">Добавить в колоду</button>
+            <button id="removeCardButton" style="display: none;">Удалить из колоды</button>
         </div>
     `;
 
-    // Show or hide the remove button based on whether the card is already in the deck
+    // Показать или скрыть кнопку удаления в зависимости от того, есть ли карта в колоде
     const addCardButton = document.getElementById('addCardButton');
     const removeCardButton = document.getElementById('removeCardButton');
 
+    // Обновляем состояние кнопок в зависимости от наличия карты в колоде
     if (deck[card.name]) {
         addCardButton.style.display = 'none';
         removeCardButton.style.display = 'inline-block';
@@ -67,24 +68,26 @@ function displayCardDetails(card) {
         removeCardButton.style.display = 'none';
     }
 
-    // Add event listeners for the buttons
-    addCardButton.addEventListener('click', () => addCardToDeck(card));
-    removeCardButton.addEventListener('click', () => removeCardFromDeck(card));
+    // Добавляем обработчики событий для кнопок
+    addCardButton.onclick = () => addCardToDeck(card);
+    removeCardButton.onclick = () => {
+        removeCardFromDeck(card);
+        displayCardDetails(card); // Обновляем отображение деталей карты после удаления
+    };
 }
-
 
 function addCardToDeck(card) {
     const cardName = card.name;
 
-    // Check if the card is a land or if we already have 4 copies
+    // Проверяем, является ли карта землёй или у нас уже есть 4 копии
     if (deck[cardName]) {
         if (deck[cardName] >= 4 && card.type !== 'Land') {
-            alert("You cannot add more than 4 copies of a card (except lands).");
+            alert("Вы не можете добавить более 4 копий карты (кроме земель).");
             return;
         }
         deck[cardName]++;
     } else {
-        deck[cardName] = 1; // Add new card to the deck
+        deck[cardName] = 1; // Добавляем новую карту в колоду
     }
 
     updateDeckDisplay();
@@ -96,28 +99,30 @@ function removeCardFromDeck(card) {
     if (deck[cardName]) {
         deck[cardName]--;
         if (deck[cardName] <= 0) {
-            delete deck[cardName]; // Remove card from deck if count is 0
+            delete deck[cardName]; // Удаляем карту из колоды, если количество равно 0
         }
-        updateDeckDisplay();
-        updateStats();
+        updateDeckDisplay(); // Обновляем отображение колоды сразу после удаления
+        updateStats(); // Обновляем статистику
     }
 }
 
 function updateDeckDisplay() {
     const cardsContainer = document.getElementById('cardsContainer');
     const deckDisplay = document.createElement('div');
-    deckDisplay.innerHTML = '<h2>Your Deck</h2>';
+    deckDisplay.innerHTML = '<h2>Ваша колода</h2>';
 
     for (const [name, count] of Object.entries(deck)) {
         const cardElement = document.createElement('div');
-        cardElement.innerHTML = `${name} (x${count}) <button onclick="removeCardFromDeck({name: '${name}'})">Remove</button>`;
+        cardElement.innerHTML = `${name} (x${count}) <button onclick="removeCardFromDeck({name: '${name}'})">Удалить</button>`;
         deckDisplay.appendChild(cardElement);
     }
 
+    // Очищаем предыдущий вывод колоды перед обновлением
+    cardsContainer.innerHTML = ''; 
     cardsContainer.appendChild(deckDisplay);
 }
 
 function updateStats() {
-    new ColorStats().buildStats(document.getElementById("colorStats"), deck);
-    new ManaCostStats().buildStats(document.getElementById("manaStats"), deck);
+    manaCostStats.buildStats('#manaStats', deck); // Обновляем график распределения маны
+    new ColorStats().buildStats(document.getElementById("colorStats"), deck); // Обновляем график распределения цветов
 }

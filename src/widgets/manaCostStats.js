@@ -1,9 +1,23 @@
 import * as d3 from "d3";
+const allCards = [
+    { name: "Card A", manaCost: 1 },
+    { name: "Card B", manaCost: 2 },
+    { name: "Card C", manaCost: 3 },
+    { name: "Card D", manaCost: 4 },
+    { name: "Card E", manaCost: 5 },
+    { name: "Card F", manaCost: 6 },
+    { name: "Card G", manaCost: 7 },
+    { name: "Card H", manaCost: 0 }
+];
 
 class ManaCostStats {
+    constructor() {
+        // Конструктор может быть пустым или использоваться для инициализации переменных
+    }
+
     buildStats(element, deck) {
         const data = this.calculateManaCostDistribution(deck);
-        // Clear previous stats
+        // Очистка предыдущих статистик
         d3.select(element).selectAll("*").remove();
 
         const margin = { top: 30, right: 30, bottom: 70, left: 60 };
@@ -36,9 +50,15 @@ class ManaCostStats {
         svg.append("g")
             .call(d3.axisLeft(y));
 
-        svg.selectAll("mybar")
-            .data(data)
-            .enter()
+        const bars = svg.selectAll("rect")
+            .data(data);
+
+        // Обновление существующих элементов
+        bars.attr("y", d => y(d.count))
+            .attr("height", d => height - y(d.count));
+
+        // Добавление новых элементов
+        bars.enter()
             .append("rect")
             .attr("x", d => x(d.cost))
             .attr("y", d => y(d.count))
@@ -46,6 +66,10 @@ class ManaCostStats {
             .attr("height", d => height - y(d.count))
             .attr("fill", "#69b3a2");
 
+        // Удаление старых элементов
+        bars.exit().remove();
+
+        // Добавление заголовков
         svg.append("text")
             .attr("text-anchor", "middle")
             .attr("x", width / 2)
@@ -67,15 +91,15 @@ class ManaCostStats {
     }
 
     calculateManaCostDistribution(deck) {
-        const manaCostCount = Array(8).fill(0); // For costs 0 to 7+
+        const manaCostCount = Array(8).fill(0); // Для стоимостей от 0 до 7+
 
         for (const cardName in deck) {
             const card = allCards.find(c => c.name === cardName);
             if (card) {
                 const count = deck[cardName];
-                const manaCost = card.manaCost || 0; // Default to 0 if no cost
+                const manaCost = card.manaCost || 0; // По умолчанию 0, если нет стоимости
                 if (manaCost >= 7) {
-                    manaCostCount[7] += count; // Count as 7+ for costs greater than 6
+                    manaCostCount[7] += count; // Считаем как 7+ для стоимостей больше 6
                 } else {
                     manaCostCount[manaCost] += count;
                 }
