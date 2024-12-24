@@ -1,6 +1,6 @@
-import { Mtg } from "./api/mtg";
-import { ColorStats } from "./widgets/colorStats";
-import { ManaCostStats } from "./widgets/manaCostStats";
+import { Mtg } from "./api/mtg.js";
+import { ColorStats } from "./widgets/colorStats.js";
+import { ManaCostStats } from "./widgets/manaCostStats.js";
 
 document.addEventListener("DOMContentLoaded", setup);
 
